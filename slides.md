@@ -53,6 +53,9 @@ drawings:
   presenterOnly: false
   syncAll: true
 
+defaults:
+  layout: center
+
 layout: intro
 ---
 
@@ -60,8 +63,6 @@ layout: intro
 
 A crash course on HTTP APIs
 
----
-layout: center
 ---
 
 <img src="https://github.com/birdcar.png" class="mx-auto w-40 rounded-full shadow" />
@@ -109,6 +110,24 @@ layout: default
 </style>
 
 ---
+
+## Goals
+
+1. To understand what an API is and how to think about them, generally
+2. To understand how to talk to an HTTP API
+3. To get some hands-on experience doing tasks with an HTTP API
+
+---
+
+## Time Out: Some pre work
+
+1. Sign up for a GitHub account
+2. Create a "Classic" Personal Access Token
+   - The token should expire in 7 days (we want to make sure it expires quick for reasons I'll get into)
+   - The token should have the `repo` and `user` permissions for today
+   - The token should be saved someplace safe (i.e. a Password Manager or other secure location)
+
+---
 layout: quote
 ---
 
@@ -120,83 +139,192 @@ You can never understand everything, but you should push yourself to understand 
 layout: section
 ---
 
-## What is an API?
+## APIs
 
----
-layout: center
 ---
 
 ## What is an API
 
 API stands for "Application Programming Interface"
 
-...but wtf does any of that mean?
-
----
-layout: center
 ---
 
-How *you* think you're opening a Google Doc
+### WTF!?
+
+---
+
+## Interface
+
+The way you interact with a thing
+
+---
+
+"Physical User Interface" (PUI)<br />vs<br />"Mechanical Reactive Interface" (MRI)
+
+---
+
+- Sink
+  - PUI
+    - Inputs: One or more knobs that control the flow of water
+    - Outputs: One or more pipes that disperse water
+  - MRI
+    - Plumbing, filters, sewage, grid, etc
+
+---
+
+- Car
+  - PUI
+    - Inputs: A wheel, 2-3 foot pedals, & a shifter
+    - Outputs: "car go vroom and swerve"
+  - MRI
+    - The engine, brakes, hydraulics, exhaust, etc.
+
+---
+
+## Interface
+
+How do we learn?
+
+---
+
+### ~~API~~ _HTTP_ API
+
+---
+
+## HTTP
+
+HyperText Transfer Protocol
+
+---
+
+### HTTP: When does it happen?
 
 <br />
 <br />
 
 ```mermaid
-sequenceDiagram
-    You->>Google: Can I haz this Google Doc?
-    Google->>You: Yep! Here you go
+flowchart LR
+    user(You)
+    client(Browser)
+    server(Google)
+
+    user-- Click button ---client
+    client--HTTP Request-->server
+    server--HTTP Response-->client
 ```
-
----
-layout: center
 ---
 
-The (very simplified) reality of what's happening in the background
+### MOST IMPORTANT
 
-<br />
-<br />
+HTTP is "stateless"
 
-```mermaid
-sequenceDiagram
-    You->>Browser: Ask Google "Can I haz this Google Doc?"
-    Browser->>You: Sure, gimme a sec (Loading)
-    Browser->>Google: 1. Check if Google is awake and listening
-    Browser-->>Google: Hello! Are you awake? Can you hear me?
-    Google-->>Browser: Yes! I am awake and can hear you, can you hear me?
-    Browser-->>Google: Great!
-    Browser->>Google: 2. Request the doc, now that they're listening
-    Browser-->>Google: I'm looking for this google doc, can you give that to me?
-    Google->>Browser: Yep! Looks like you're allowed to see that, here you go!
-    Browser->>You: Here's the doc! (Render page)
+---
+
+## HTTP: The Cycle
+
+- Request
+  - Comes from a "client" (e.g. your web browser, a CLI, Postman, HTTPie, your SaaS app)
+  - Communicates with "verbs", URLs, headers, and payload/body
+- Response
+  - Comes from a "server" (e.g. A different SaaS app, any device that knows how to respond to HTTP requests)
+  - Communicates with response codes, headers, and payload/body
+
+---
+layout: full
+---
+
+```http{all|1-10|1|5|12-27|all}
+HTTP/1.1 200 OK
+Age: 0
+Cache-Control: public, max-age=0, must-revalidate
+Content-Length: 545
+Content-Type: text/html; charset=UTF-8
+Date: Tue, 14 Mar 2023 19:51:31 GMT
+Etag: "a5fdd42b717b530e6175ab91f67037f5-ssl"
+Server: Netlify
+Strict-Transport-Security: max-age=31536000
+X-Nf-Request-Id: 01GVGTV1G1J5K7JE2BGAP4Q91R
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" href="/assets/8b9eb19119592679c97707c257d88026-a02f38e2.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@200;400;600&display=swap" type="text/css">
+  <script type="module" crossorigin src="/assets/index-cf09b09f.js"></script>
+  <link rel="stylesheet" href="/assets/index-9b901fa7.css">
+</head>
+<body>
+  <div id="app"></div>
+
+
+</body>
+</html>
+```
+---
+layout: iframe
+url: https://http.cat
+---
+
+---
+layout: full
+---
+
+```http{all|5|1|2|6}
+GET / HTTP/1.1
+Accept: */*
+Accept-Encoding: gzip, deflate
+Connection: keep-alive
+Host: apisolutely.birdcar.dev
+User-Agent: HTTPie/3.2.1
+
 ```
 
 ---
 layout: full
 ---
 
-## Headers
+```http{all|1-10|12-15}
+POST /repos/birdcar/notes/issues HTTP/1.1
+Accept: application/vnd.github+json
+Accept-Encoding: gzip, deflate
+Authorization: Bearer SECRET_TOKEN_NO_LOOKIE
+Connection: keep-alive
+Content-Length: 444
+Content-Type: application/json
+Host: api.github.com
+User-Agent: HTTPie/3.2.1
+X-GitHub-Api-Version: 2022-11-28
 
-```http{all|1|5|all}
-HTTP/1.1 200 OK
-Access-Control-Allow-Origin: *
-Connection: Keep-Alive
-Content-Encoding: gzip
-Content-Type: text/html; charset=utf-8
-Date: Mon, 18 Jul 2016 16:06:00 GMT
-Etag: "c561c68d0ba92bbeb8b0f612a9199f722e3a621a"
-Keep-Alive: timeout=5, max=997
-Last-Modified: Mon, 18 Jul 2016 02:36:04 GMT
-Server: Apache
-Set-Cookie: mykey=myvalue; expires=Mon, 17-Jul-2017 16:06:00 GMT; Max-Age=31449600; Path=/; secure
-Transfer-Encoding: chunked
-Vary: Cookie, Accept-Encoding
-X-Backend-Server: developer2.webapp.scl3.mozilla.com
-X-Cache-Info: not cacheable; meta data too large
-X-kuma-revision: 1085259
-x-frame-options: DENY
-
-{...}
+{
+  "title": "OMG This is super broken",
+  "body": "So like, I know this is a project you build on your free time for your own personal use and have graciously given away for free, and I know that I work for a FAANG company and we could/should have a moral obligation to pay you to maintain this since we built an entire business on it, but honestly that seems hard and it would be great if you worked for free to fix every problem I have. Kthxbye"
+}
 ```
+
+---
+layout: section
+---
+
+## How server know things if stateless?
+
+---
+
+- HTTP verbs
+- URL
+- Headers
+- Body
+
+---
+
+## Anatomy of HTTP Verbs
+
+- `GET`: I'm looking for something and would like you to give it to me
+- `POST`: Here's something I want you to make from scratch
+- `PUT/PATCH`: You already know what this is, but please update it for me
+- `DELETE`: Lol nuke it from space
+- `HEAD`: Just give me the headers for this response
 
 ---
 layout: full
@@ -239,9 +367,136 @@ flowchart LR
         direction LR
         subgraph DOMAIN
             direction LR
-            domain_name{{github.}} --- tld{{com}}
+            domain_name(github.) --- tld(com)
         end
         subdomains{{api.}} --- DOMAIN
     end
-    protocol{{https://}} --- HOSTNAME --- path{{/user}} --- querystring{{?label=plugs&label=feature_request}}
+    protocol(https://) --- HOSTNAME --- path(/issues) --- querystring(?filter=created&state=open)
 ```
+
+---
+layout: full
+---
+
+## Anatomy of Headers
+
+<br />
+<br />
+
+```http{all|1-10|8|1|4|2-3|7}
+POST /repos/birdcar/notes/issues HTTP/1.1
+Accept: application/vnd.github+json
+Accept-Encoding: gzip, deflate
+Authorization: Bearer SECRET_TOKEN_NO_LOOKIE
+Connection: keep-alive
+Content-Length: 444
+Content-Type: application/json
+Host: api.github.com
+User-Agent: HTTPie/3.2.1
+X-GitHub-Api-Version: 2022-11-28
+```
+
+---
+layout: full
+---
+
+## Anatomy of (a type of) Body
+
+<br />
+<br />
+
+```json
+{
+  "title": "OMG This is super broken",
+  "body": "So like, I know this is a project you build on your free time for your own personal use and have graciously given away for free, and I know that I work for a FAANG company and we could/should have a moral obligation to pay you to maintain this since we built an entire business on it, but honestly that seems hard and it would be great if you worked for free to fix every problem I have. Kthxbye"
+}
+```
+
+---
+layout: section
+---
+
+## Go get some REST
+
+---
+
+## REpresentational State Transfer (REST) API
+
+- A type of API that organizes the stuff you can do into "resources"
+- Designed to leverage _all_ of the ways HTTP requests can express themselves
+- The _dominant_ kind of Web API (You are probably already supporting one in one way or another)
+
+---
+layout: full
+---
+
+```http
+POST /repos/birdcar/notes/issues HTTP/1.1
+Accept: application/vnd.github+json
+Accept-Encoding: gzip, deflate
+Authorization: Bearer SECRET_TOKEN_NO_LOOKIE
+Connection: keep-alive
+Content-Length: 444
+Content-Type: application/json
+Host: api.github.com
+User-Agent: HTTPie/3.2.1
+X-GitHub-Api-Version: 2022-11-28
+
+{
+  "title": "OMG This is super broken",
+  "body": "So like, I know this is a project you build on your free time for your own personal use and have graciously given away for free, and I know that I work for a FAANG company and we could/should have a moral obligation to pay you to maintain this since we built an entire business on it, but honestly that seems hard and it would be great if you worked for free to fix every problem I have. Kthxbye"
+}
+```
+
+---
+layout: section
+---
+
+## Putting it all together: API docs
+
+
+---
+
+https://docs.github.com/en/rest/issues/issues
+
+---
+layout: section
+---
+## Q & A
+
+---
+layout: section
+---
+
+## Hands-on time
+
+---
+layout: section
+---
+## Task 1: Get your GitHub user information
+
+https://docs.github.com/en/rest/users/users?apiVersion=2022-11-28#get-the-authenticated-user
+
+---
+layout: section
+---
+
+## Task 2: Create an issue in birdcar/apisolutelyfab
+
+https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#create-an-issue
+
+---
+layout: section
+---
+
+## Task 3: Add a comment to the issue you created
+
+https://docs.github.com/en/rest/issues/comments?apiVersion=2022-11-28#create-an-issue-comment
+
+---
+layout: section
+---
+
+## Task 4: List all issues created by your user
+
+https://docs.github.com/en/rest/issues/issues?apiVersion=2022-11-28#list-issues-assigned-to-the-authenticated-user
