@@ -454,9 +454,6 @@ layout: section
 
 ## Putting it all together: API docs
 
-
----
-
 https://docs.github.com/en/rest/issues/issues
 
 ---
